@@ -39,6 +39,17 @@ app.post('/api/simulation/toggle', (req, res) => {
 });
 
 // Root / Health check
+app.get('/api', (req, res) => {
+  res.json({
+    name: 'SmartBin IoT Backend API',
+    status: 'Operational',
+    version: '1.0.0',
+    dbMode: isMongoActive() ? 'MongoDB Connected' : 'In-Memory Store (Fallback Mode)',
+    simulationRunning: simulator.isRunning,
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get('/', (req, res) => {
   res.json({
     name: 'SmartBin IoT Backend API',
@@ -74,4 +85,9 @@ function startServer(port) {
   });
 }
 
-startServer(DEFAULT_PORT);
+// Only listen on port if run directly (not on Vercel Serverless)
+if (require.main === module || !process.env.VERCEL) {
+  startServer(DEFAULT_PORT);
+}
+
+module.exports = app;
